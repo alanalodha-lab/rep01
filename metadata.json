@@ -1,0 +1,7 @@
+{
+  "name": "PulseFit - Adaptive Fitness Companion",
+  "description": "Smart, adaptive fitness, routine, and nutrition companion tailored for gym, home, or outdoor training for ages 16+.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
