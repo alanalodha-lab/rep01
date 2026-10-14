@@ -175,8 +175,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       <div>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
-              P
+            <div className="w-8 h-8 rounded-lg bg-[#B026FF]/15 border border-[#B026FF]/60 flex items-center justify-center text-[#D8A5FF] font-extrabold text-sm shadow-[0_0_16px_rgba(176,38,255,0.22)]">
+              Pf
             </div>
             <span className="font-semibold text-zinc-200 tracking-tight text-lg">
               PulseFit
