@@ -142,8 +142,8 @@ export default function App() {
         <div className="space-y-8">
           {/* Brand Wordmark */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-extrabold text-lg">
-              P
+            <div className="w-9 h-9 rounded-xl bg-[#B026FF]/15 border border-[#B026FF]/60 flex items-center justify-center text-[#D8A5FF] font-extrabold text-base shadow-[0_0_18px_rgba(176,38,255,0.22)]">
+              Pf
             </div>
             <div>
               <span className="font-bold text-zinc-100 text-lg tracking-tight block">
