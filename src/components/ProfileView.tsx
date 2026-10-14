@@ -107,7 +107,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                Metric (cm)
+                Metric (kg/cm)
               </button>
               <button
                 type="button"
@@ -118,7 +118,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                Imperial (in)
+                Imperial (lbs/in)
               </button>
             </div>
           </div>
@@ -186,16 +186,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {/* Weight */}
             <div className="p-3.5 bg-zinc-950/70 border border-zinc-800 rounded-2xl">
               <label className="block text-xs font-medium text-zinc-400 mb-1">
-                Weight (kg)
+                Weight ({units === 'metric' ? 'kg' : 'lbs'})
               </label>
               <input
                 type="number"
                 min="30"
                 max="300"
-                value={weightKg}
+                value={units === 'metric' ? weightKg : Math.round(weightKg * 2.20462)}
                 onChange={(e) => {
                   const val = parseInt(e.target.value) || 0;
-                  setWeightKg(val);
+                  setWeightKg(units === 'metric' ? val : Math.round(val / 2.20462));
                 }}
                 className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 font-mono text-zinc-100 text-sm focus:outline-none focus:border-emerald-500"
               />
