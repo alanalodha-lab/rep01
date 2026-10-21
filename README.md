@@ -163,3 +163,19 @@ For larger changes, open an issue first to discuss the proposed approach.
 ## License
 
 No license file is currently present in the repository. Unless a license is added, reuse and redistribution rights should not be assumed. Add a license file before distributing the project under an open-source license.
+
+
+## Supabase authentication setup
+
+PulseFit supports Supabase email/password authentication when configured. Without these variables, the app keeps the local/guest path available.
+
+1. Create or select a Supabase project.
+2. Copy the project URL and **publishable** API key from the Supabase dashboard.
+3. Copy `.env.example` to `.env.local` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+4. In Supabase **Authentication → URL Configuration**, set the Site URL to your canonical production URL and add the local development URL, production URL, and the exact Vercel preview URL(s) used for sign-up confirmation redirects to the Redirect URLs allowlist.
+5. In Vercel Project Settings → Environment Variables, add both variables for **Development**, **Preview**, and **Production**. Redeploy previews after changing variables.
+6. In Supabase **Authentication → Providers**, ensure Email is enabled and choose whether new accounts require email confirmation.
+
+Only use a Supabase publishable key in browser code. Never put a service-role or secret key in a `VITE_*` variable or client bundle. User fitness logs currently remain in browser storage; authentication does not automatically sync those logs to the database.
+
+Install dependencies and verify locally with `npm install`, `npm run lint`, and `npm run build`.
