@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { 
   UserProfile, 
   DailyLog, 
@@ -47,6 +48,7 @@ import {
 export default function App() {
   const [profile, setProfile] = useState<UserProfile | null>(() => getStoredProfile());
   const [showAuth, setShowAuth] = useState<boolean>(() => !getStoredProfile());
+  const [authChecking, setAuthChecking] = useState<boolean>(isSupabaseConfigured);
   const [activeTab, setActiveTab] = useState<'today' | 'workouts' | 'activity' | 'nutrition' | 'profile'>('today');
   const [currentDate, setCurrentDate] = useState<string>(() => getTodayDateString());
   const [allLogs, setAllLogs] = useState<Record<string, DailyLog>>(() => getAllDailyLogs());
@@ -58,6 +60,29 @@ export default function App() {
   // Modals
   const [showQuickMealModal, setShowQuickMealModal] = useState(false);
   const [showQuickActivityModal, setShowQuickActivityModal] = useState(false);
+
+  // Restore Supabase sessions and react to login/logout changes.
+  useEffect(() => {
+    if (!supabase) {
+      setAuthChecking(false);
+      return;
+    }
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      if (data.session) setShowAuth(false);
+      setAuthChecking(false);
+    }).catch(() => {
+      if (mounted) setAuthChecking(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) setShowAuth(false);
+    });
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Sync log whenever currentDate changes
   useEffect(() => {
@@ -127,9 +152,14 @@ export default function App() {
     setCurrentDate(newStr);
   };
 
+  // Wait for a persisted auth session before choosing the initial screen.
+  if (authChecking) {
+    return <div className="min-h-screen bg-zinc-950 text-zinc-300 flex items-center justify-center">Loading PulseFit…</div>;
+  }
+
   // New users can choose to continue locally or view the account entry screen.
   if (!profile && showAuth) {
-    return <AuthScreen onContinueWithoutAccount={() => setShowAuth(false)} />;
+    return <AuthScreen onContinueWithoutAccount={() => setShowAuth(false)} onAuthenticated={() => setShowAuth(false)} />;
   }
 
   // If no profile, show onboarding
