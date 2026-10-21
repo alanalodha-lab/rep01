@@ -175,8 +175,8 @@ export function AuthScreen({ onContinueWithoutAccount, onAuthenticated }: AuthSc
             {successMessage && <p role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">{successMessage}</p>}
             {providerNotice && (
               <div role="status" className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-sm leading-5 text-amber-100">
-                <p className="font-semibold">Account authentication is not configured yet.</p>
-                <p className="mt-1 text-amber-100/75">Your details have not been submitted or saved. Connect a secure authentication provider to enable {mode === 'login' ? 'login' : 'account creation'}.</p>
+                <p className="font-semibold">Authentication is not configured for this deployment.</p>
+                <p className="mt-1 text-amber-100/75">Your details have not been submitted or saved. Check the Supabase environment variables and redeploy this preview.</p>
               </div>
             )}
 
@@ -196,7 +196,7 @@ export function AuthScreen({ onContinueWithoutAccount, onAuthenticated }: AuthSc
 
           <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-zinc-950/60 p-3 text-xs leading-5 text-zinc-500">
             <ShieldCheck aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-            <p>Account sign-in is not active yet. You can still use PulseFit locally; your fitness data stays in this browser.</p>
+            <p>{isSupabaseConfigured ? 'Secure sign-in powered by Supabase. Email confirmation may be required for new accounts.' : 'You can still use PulseFit locally without an account; your fitness data stays in this browser.'}</p>
           </div>
         </div>
 
