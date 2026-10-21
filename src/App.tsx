@@ -27,6 +27,7 @@ import { WorkoutsView } from './components/WorkoutsView';
 import { ActivityView } from './components/ActivityView';
 import { NutritionView } from './components/NutritionView';
 import { ProfileView } from './components/ProfileView';
+import { AuthScreen } from './components/AuthScreen';
 
 // Icons
 import { 
@@ -45,6 +46,7 @@ import {
 
 export default function App() {
   const [profile, setProfile] = useState<UserProfile | null>(() => getStoredProfile());
+  const [showAuth, setShowAuth] = useState<boolean>(() => !getStoredProfile());
   const [activeTab, setActiveTab] = useState<'today' | 'workouts' | 'activity' | 'nutrition' | 'profile'>('today');
   const [currentDate, setCurrentDate] = useState<string>(() => getTodayDateString());
   const [allLogs, setAllLogs] = useState<Record<string, DailyLog>>(() => getAllDailyLogs());
@@ -124,6 +126,11 @@ export default function App() {
     const newStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     setCurrentDate(newStr);
   };
+
+  // New users can choose to continue locally or view the account entry screen.
+  if (!profile && showAuth) {
+    return <AuthScreen onContinueWithoutAccount={() => setShowAuth(false)} />;
+  }
 
   // If no profile, show onboarding
   if (!profile) {
