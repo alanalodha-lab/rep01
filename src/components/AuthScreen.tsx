@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { Activity, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 
 type AuthMode = 'login' | 'signup';
 
 interface AuthScreenProps {
   onContinueWithoutAccount: () => void;
+  onAuthenticated: () => void;
 }
 
-export function AuthScreen({ onContinueWithoutAccount }: AuthScreenProps) {
+export function AuthScreen({ onContinueWithoutAccount, onAuthenticated }: AuthScreenProps) {
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,16 +17,19 @@ export function AuthScreen({ onContinueWithoutAccount }: AuthScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [providerNotice, setProviderNotice] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const switchMode = (nextMode: AuthMode) => {
     setMode(nextMode);
     setErrors({});
     setProviderNotice(false);
+    setSuccessMessage('');
     setPassword('');
     setConfirmPassword('');
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nextErrors: Record<string, string> = {};
     const normalizedEmail = email.trim();
@@ -46,7 +51,36 @@ export function AuthScreen({ onContinueWithoutAccount }: AuthScreenProps) {
     }
 
     setErrors(nextErrors);
-    setProviderNotice(Object.keys(nextErrors).length === 0);
+    setProviderNotice(false);
+    setSuccessMessage('');
+    if (Object.keys(nextErrors).length > 0) return;
+    if (!supabase || !isSupabaseConfigured) {
+      setProviderNotice(true);
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = mode === 'signup'
+        ? await supabase.auth.signUp({
+            email: normalizedEmail,
+            password,
+            options: { emailRedirectTo: window.location.origin },
+          })
+        : await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
+      if (result.error) throw result.error;
+      if (mode === 'signup' && !result.data.session) {
+        setSuccessMessage('Account created. Check your email for a confirmation link, then return here to log in.');
+      } else {
+        onAuthenticated();
+      }
+    } catch (error) {
+      setErrors((prev) => ({
+        ...prev,
+        form: error instanceof Error ? error.message : 'Authentication failed. Please try again.',
+      }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass = (hasError: boolean) =>
@@ -137,6 +171,8 @@ export function AuthScreen({ onContinueWithoutAccount }: AuthScreenProps) {
               </div>
             )}
 
+            {errors.form && <p role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">{errors.form}</p>}
+            {successMessage && <p role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">{successMessage}</p>}
             {providerNotice && (
               <div role="status" className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-sm leading-5 text-amber-100">
                 <p className="font-semibold">Account authentication is not configured yet.</p>
@@ -144,8 +180,8 @@ export function AuthScreen({ onContinueWithoutAccount }: AuthScreenProps) {
               </div>
             )}
 
-            <button type="submit" className="w-full rounded-xl bg-violet-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-950/30 transition hover:bg-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-zinc-900">
-              {mode === 'login' ? 'Log in' : 'Create account'}
+            <button type="submit" disabled={loading} className="w-full rounded-xl bg-violet-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-950/30 transition hover:bg-violet-400 disabled:cursor-wait disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-zinc-900">
+              {loading ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Create account'}
             </button>
           </form>
 
